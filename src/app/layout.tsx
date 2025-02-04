@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
+
+import { Toaster } from "/src/@/components/ui/toaster";
+
 import "./globals.css";
-import { cn } from "../lib/utils";
+import { cn } from "/lib/utils";
 
 const dmSans = DM_Sans({
   variable: "--font-geist-sans",
@@ -27,6 +30,7 @@ export default function RootLayout({
         )}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

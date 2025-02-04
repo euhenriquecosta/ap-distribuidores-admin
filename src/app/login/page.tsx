@@ -21,7 +21,7 @@ export default function LoginPage() {
       <div className="relative hidden bg-muted lg:block">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/placeholder.svg"
+          src="https://get.pxhere.com/photo/image-tree-natural-landscape-nature-leaf-autumn-yellow-deciduous-natural-environment-woody-plant-woodland-forest-plant-road-grove-sunlight-grass-nature-reserve-lane-path-biome-road-surface-branch-temperate-broadleaf-and-mixed-forest-spring-sky-thoroughfare-infrastructure-trail-landscape-park-street-trunk-plane-state-park-Northern-hardwood-forest-nonbuilding-structure-1630441.jpg"
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />

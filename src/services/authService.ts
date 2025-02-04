@@ -14,7 +14,7 @@ interface SignInResponse {
 
 export async function signIn(data: SignInData): Promise<SignInResponse> {
   try {
-    const response = await api.post<SignInResponse>("/signin", data);
+    const response = await api.post<SignInResponse>("/api/signin", data);
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
