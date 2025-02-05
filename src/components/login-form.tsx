@@ -19,14 +19,21 @@ interface LoginFormInputs {
   password: string;
 }
 
-export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"form">) {
+export function LoginForm({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"form">) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const { toast } = useToast();
-  const router = useRouter()
+  const router = useRouter();
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormInputs>();
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     setIsLoading(true);
@@ -42,7 +49,17 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         EMAIL: data.email,
         PASSWORD: data.password,
       });
-      console.log("Login bem-sucedido!", result);
+      if (result.token) {
+        localStorage.setItem("token", result.token);
+        localStorage.setItem("id", result.id);
+        router.push("/distributors");
+      }
+      toast({
+        variant: "destructive",
+        title: "Sucesso ao fazer login!",
+        style: { backgroundColor: "green", color: "white" },
+        description: "Você foi logado com sucesso.",
+      });
     } catch (error: unknown) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
@@ -66,7 +83,11 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
   };
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit(onSubmit)} {...props}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      onSubmit={handleSubmit(onSubmit)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Faça login para sua conta</h1>
         <p className="text-balance text-sm text-muted-foreground">
@@ -76,14 +97,16 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input 
-            id="email" 
-            type="email" 
-            placeholder="seuemail@email.com" 
-            {...register("email", { required: "O email é obrigatório" })} 
+          <Input
+            id="email"
+            type="email"
+            placeholder="seuemail@email.com"
+            {...register("email", { required: "O email é obrigatório" })}
             aria-invalid={errors.email ? "true" : "false"}
           />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+          {errors.email && (
+            <p className="text-sm text-red-500">{errors.email.message}</p>
+          )}
         </div>
         <div className="grid gap-2">
           <div className="flex items-center">
@@ -95,16 +118,18 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
               Esqueceu sua Senha?
             </a>
           </div>
-          <Input 
-            id="password" 
-            type="password" 
-            {...register("password", { required: "A senha é obrigatória" })} 
+          <Input
+            id="password"
+            type="password"
+            {...register("password", { required: "A senha é obrigatória" })}
             aria-invalid={errors.password ? "true" : "false"}
           />
-          {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+          {errors.password && (
+            <p className="text-sm text-red-500">{errors.password.message}</p>
+          )}
         </div>
         <Button type="submit" className="w-full" disabled={isLoading}>
-          { isLoading ? "Carregando..." : "Login" }
+          {isLoading ? "Carregando..." : "Login"}
         </Button>
       </div>
       <div className="text-center text-sm">
