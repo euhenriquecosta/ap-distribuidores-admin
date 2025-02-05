@@ -18,7 +18,6 @@ import {
 } from "/src/@/components/ui/sidebar";
 import { api } from "../../services/api";
 import { useEffect, useState } from "react";
-import { Button } from "../../components/ui/button";
 import { DialogCreateDistributor } from "../../components/dialog-create-distributor";
 
 interface Distributor {
@@ -77,7 +76,7 @@ export default function Page() {
           <div className="flex-row flex items-center justify-end">
             <DialogCreateDistributor />
           </div>
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
+          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min lg:px-4 py-2">
             <Table>
               <TableCaption>A lista de todos os seus distribuidores</TableCaption>
               <TableHeader>

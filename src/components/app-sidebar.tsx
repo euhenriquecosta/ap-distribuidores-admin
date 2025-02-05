@@ -2,12 +2,8 @@
 
 import * as React from "react";
 import {
-  GalleryVerticalEnd,
   Locate,
-  Map,
-  PieChart,
   Settings2,
-  SquareTerminal,
 } from "lucide-react";
 
 import { NavMain } from "/src/@/components/nav-main";
@@ -20,7 +16,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "/src/@/components/ui/sidebar";
-import { Logo } from "../assets/logo";
 import { Icon } from "../assets/icon";
 
 // This is sample data.
