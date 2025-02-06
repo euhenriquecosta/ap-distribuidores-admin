@@ -5,6 +5,7 @@ import { Toaster } from "/src/@/components/ui/toaster";
 
 import "./globals.css";
 import { cn } from "/lib/utils";
+import { AuthContextProvider } from "../contexts/auth-context";
 
 const dmSans = DM_Sans({
   variable: "--font-geist-sans",
@@ -23,15 +24,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          dmSans.className
-        )}
-      >
-        {children}
-        <Toaster />
-      </body>
+      <AuthContextProvider>
+        <body
+          className={cn(
+            "min-h-screen bg-background font-sans antialiased",
+            dmSans.className
+          )}
+        >
+          {children}
+          <Toaster />
+        </body>
+      </AuthContextProvider>
     </html>
   );
 }

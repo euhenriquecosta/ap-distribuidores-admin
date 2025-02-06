@@ -5,14 +5,12 @@ import { Button } from "/src/@/components/ui/button";
 import { Input } from "/src/@/components/ui/input";
 import { Label } from "/src/@/components/ui/label";
 
-import { useRouter } from "next/navigation";
-
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 
 import { useToast } from "/src/@/hooks/use-toast";
 
-import { signIn } from "/src/@/services/authService";
+import { useAuth } from "../hooks/use-auth";
 
 interface LoginFormInputs {
   email: string;
@@ -25,10 +23,9 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<"form">) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { signIn } = useAuth();
 
   const { toast } = useToast();
-  const router = useRouter();
-
   const {
     register,
     handleSubmit,
@@ -45,15 +42,10 @@ export function LoginForm({
     });
 
     try {
-      const result = await signIn({
-        EMAIL: data.email,
-        PASSWORD: data.password,
+      await signIn({
+        email: data.email,
+        password: data.password,
       });
-      if (result.token) {
-        localStorage.setItem("token", result.token);
-        localStorage.setItem("id", result.id);
-        router.push("/distributors");
-      }
       toast({
         variant: "destructive",
         title: "Sucesso ao fazer login!",

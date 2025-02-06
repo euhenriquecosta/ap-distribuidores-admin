@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select"
+import { useToast } from "../hooks/use-toast"
 
 type PlanType = "starter" | "pro" | "master"
 
@@ -59,20 +60,20 @@ interface FormData {
   ADDRESS: string
   LATITUDE: number
   LONGITUDE: number
-  POSTAL_CODE: string
-  REGION: string
 }
 
-const stateToRegion: { [key: string]: string } = {
-  AC: "norte", AL: "nordeste", AP: "norte", AM: "norte",
-  BA: "nordeste", CE: "nordeste", DF: "centro-oeste", ES: "sudeste",
-  GO: "centro-oeste", MA: "nordeste", MT: "centro-oeste", MS: "centro-oeste",
-  MG: "sudeste", PA: "norte", PB: "nordeste", PR: "sul", PE: "nordeste",
-  PI: "nordeste", RJ: "sudeste", RN: "nordeste", RS: "sul", RO: "norte",
-  RR: "norte", SC: "sul", SP: "sudeste", SE: "nordeste", TO: "norte"
-}
 
 export function DialogCreateDistributor() {
+  const [addressOptions, setAddressOptions] = useState<Array<{
+    value: string
+    label: string
+    data: Place
+  }>>([])
+  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [debouncedTerm] = useDebounce(searchTerm, 300)
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
   const { control, handleSubmit, setValue } = useForm<FormData>({
     defaultValues: {
       PLAN_TYPE: "starter",
@@ -84,20 +85,8 @@ export function DialogCreateDistributor() {
       ADDRESS: "",
       LATITUDE: 0,
       LONGITUDE: 0,
-      POSTAL_CODE: "",
-      REGION: ""
     }
   })
-
-  const [addressOptions, setAddressOptions] = useState<Array<{
-    value: string
-    label: string
-    data: Place
-  }>>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [debouncedTerm] = useDebounce(searchTerm, 300)
-  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
 
   const fetchAddressPredictions = async (term: string) => {
     setIsLoading(true)
@@ -128,39 +117,49 @@ export function DialogCreateDistributor() {
     }
   }
 
-  const getAddressComponent = (
-    components: AddressComponent[],
-    type: string
-  ) => components.find(c => c.types.includes(type))?.longText || ""
-
   const handleAddressSelect = (placeId: string) => {
     setSelectedPlaceId(placeId)
 
     const selected = addressOptions.find(opt => opt.value === placeId)
     if (!selected?.data.addressComponents) return
 
-    const components = selected.data.addressComponents
-
     setValue("ADDRESS", selected.data.formattedAddress)
     setValue("LATITUDE", selected.data.location?.latitude || 0)
     setValue("LONGITUDE", selected.data.location?.longitude || 0)
-    setValue("POSTAL_CODE", getAddressComponent(components, "postal_code"))
-
-    const state = getAddressComponent(components, "administrative_area_level_1")
-    setValue("REGION", stateToRegion[state.replace(/[^A-Z]/g, "")] || "")
   }
 
   const onSubmit = async (data: FormData) => {
+    toast({
+      variant: "default",
+      title: "Criando distribuidor..."
+    })
     try {
-      await api.post("api/distributors", {
+      const response = await api.post("api/distributors", {
         ...data,
         PHONE_NUMBER: data.PHONE_NUMBER.replace(/\D/g, ""),
         WHATSAPP_NUMBER: data.WHATSAPP_NUMBER.replace(/\D/g, "")
       })
-      alert("Distribuidor criado com sucesso!")
+      if (response.status == 401) {
+        toast({
+          variant: "destructive",
+          title: "Erro ao criar distribuidor",
+          description: "Você não tem permissão para criar um novo distribuidor"
+        })
+      }
+      if (response.status == 201) {
+        toast({
+          variant: "default",
+          title: "Distribuidor criado",
+          description: "O distribuidor foi criado com sucesso"
+        })
+      }
     } catch (error) {
       console.error("Erro ao criar distribuidor:", error)
-      alert("Erro ao criar distribuidor")
+      toast({
+        variant: "destructive",
+        title: "Erro ao criar distribuidor",
+        description: "Ocorreu um erro ao tentar criar um novo distribuidor"
+      })
     }
   }
 
@@ -291,8 +290,6 @@ export function DialogCreateDistributor() {
             {/* Campos ocultos */}
             <Controller name="LATITUDE" control={control} render={({ field }) => <input type="hidden" {...field} />} />
             <Controller name="LONGITUDE" control={control} render={({ field }) => <input type="hidden" {...field} />} />
-            <Controller name="POSTAL_CODE" control={control} render={({ field }) => <input type="hidden" {...field} />} />
-            <Controller name="REGION" control={control} render={({ field }) => <input type="hidden" {...field} />} />
           </div>
 
           <DialogFooter>
