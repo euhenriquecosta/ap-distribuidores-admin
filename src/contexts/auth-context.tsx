@@ -6,10 +6,27 @@ import { useRouter } from 'next/navigation';
 
 import { api } from '../services/api';
 
+export interface Distributor {
+  DISTRIBUTOR_ID: string;
+  AVATAR: string | null;
+  PLAN_TYPE: "pro" | "master" | "starter";
+  ADDRESS: string;
+  LATITUDE: number;
+  LONGITUDE: number;
+  WHATSAPP_NUMBER: string;
+  PHONE_NUMBER: string;
+  FIRST_NAME: string;
+  LAST_NAME: string;
+  EMAIL: string;
+  CREATED_AT: Date;
+  UPDATED_AT: Date;
+}
+
 interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
+  getUserData: () => Promise<Distributor>;
   signIn: ({ email, password }: SignInRequest) => void;
   signOut: () => void;
 }
@@ -57,6 +74,17 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
       throw new Error("Error signing in");
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function getUserData() {
+    try {
+      const response = await api.get("/api/user");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Erro para pegar os dados do usuário");
+
     }
   }
 
@@ -112,7 +140,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, setIsAuthenticated, signIn, signOut }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, setIsAuthenticated, getUserData, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
