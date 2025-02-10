@@ -62,8 +62,11 @@ interface FormData {
   LONGITUDE: number
 }
 
+interface DialogCreateDistributorProps {
+  onCreate: (id: string) => void
+}
 
-export function DialogCreateDistributor() {
+export function DialogCreateDistributor({ onCreate }: DialogCreateDistributorProps) {
   const [addressOptions, setAddressOptions] = useState<Array<{
     value: string
     label: string
@@ -71,6 +74,7 @@ export function DialogCreateDistributor() {
   }>>([])
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [debouncedTerm] = useDebounce(searchTerm, 300)
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
@@ -152,6 +156,8 @@ export function DialogCreateDistributor() {
           title: "Distribuidor criado",
           description: "O distribuidor foi criado com sucesso"
         })
+        setIsOpen(false)
+        onCreate(response.data.id)
       }
     } catch (error) {
       console.error("Erro ao criar distribuidor:", error)
@@ -172,9 +178,9 @@ export function DialogCreateDistributor() {
   }, [debouncedTerm])
 
   return (
-    <Dialog>
+    <Dialog open={isOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Criar distribuidor</Button>
+        <Button onClick={() => setIsOpen(true)} variant="default">Criar distribuidor</Button>
       </DialogTrigger>
       <DialogContent className="table overflow-x-hidden justify-center items-center">
         <DialogHeader>
@@ -184,7 +190,19 @@ export function DialogCreateDistributor() {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit, (errors) => {
+          console.log(errors)
+
+          const firstError = Object.values(errors)[0]
+
+          if (firstError) {
+            toast({
+              variant: "destructive",
+              title: "Erro ao Registrar",
+              description: firstError.message || "Verifique se todos os campos foram preenchidos corretamente",
+            });
+          }
+        })}>
           <div className="flex flex-col gap-4 py-4 max-h-[70vh] overflow-y-auto px-2">
             {/* Plano */}
             <div className="space-y-2">
@@ -192,6 +210,7 @@ export function DialogCreateDistributor() {
               <Controller
                 name="PLAN_TYPE"
                 control={control}
+                rules={{ required: "Selecione um plano" }}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
@@ -216,6 +235,7 @@ export function DialogCreateDistributor() {
               <Controller
                 name="FIRST_NAME"
                 control={control}
+                rules={{ required: "Digite o primeiro nome" }}
                 render={({ field }) => (
                   <Input {...field} placeholder="Digite o primeiro nome" />
                 )}
@@ -228,6 +248,7 @@ export function DialogCreateDistributor() {
               <Controller
                 name="LAST_NAME"
                 control={control}
+                rules={{ required: "Digite o último nome" }}
                 render={({ field }) => (
                   <Input {...field} placeholder="Digite o último nome" />
                 )}
@@ -240,6 +261,7 @@ export function DialogCreateDistributor() {
               <Controller
                 name="WHATSAPP_NUMBER"
                 control={control}
+                rules={{ required: "Digite o número do WhatsApp" }}
                 render={({ field }) => (
                   <PhoneInput {...field} placeholder="(00) 00000-0000" />
                 )}
@@ -264,6 +286,7 @@ export function DialogCreateDistributor() {
               <Controller
                 name="EMAIL"
                 control={control}
+                rules={{ required: "Digite o email", pattern: { value: /^\S+@\S+$/, message: "Email inválido" } }}
                 render={({ field }) => (
                   <Input
                     {...field}
@@ -277,14 +300,22 @@ export function DialogCreateDistributor() {
             {/* Endereço */}
             <div className="space-y-2">
               <Label>Endereço</Label>
-              <ComboBox
-                options={addressOptions}
-                value={selectedPlaceId}
-                onSelect={handleAddressSelect}
-                searchTerm={searchTerm}
-                onSearch={setSearchTerm}
-                isLoading={isLoading}
+              <Controller
+                name="ADDRESS"
+                control={control}
+                rules={{ required: "Digite o endereço" }}
+                render={() => (
+                  <ComboBox
+                    options={addressOptions}
+                    value={selectedPlaceId}
+                    onSelect={handleAddressSelect}
+                    searchTerm={searchTerm}
+                    onSearch={setSearchTerm}
+                    isLoading={isLoading}
+                  />
+                )}
               />
+
             </div>
 
             {/* Campos ocultos */}
@@ -293,7 +324,7 @@ export function DialogCreateDistributor() {
           </div>
 
           <DialogFooter>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" >
               Criar distribuidor
             </Button>
           </DialogFooter>

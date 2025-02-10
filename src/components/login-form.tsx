@@ -124,12 +124,6 @@ export function LoginForm({
           {isLoading ? "Carregando..." : "Login"}
         </Button>
       </div>
-      <div className="text-center text-sm">
-        Não tem uma conta?{" "}
-        <a href="#" className="underline underline-offset-4">
-          Criar uma conta
-        </a>
-      </div>
     </form>
   );
 }

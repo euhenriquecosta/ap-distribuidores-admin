@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "/src/@/components/ui/table";
+// import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "/src/@/components/ui/table";
 import { AppSidebar } from "/src/@/components/app-sidebar";
 import {
   Breadcrumb,
@@ -22,20 +22,21 @@ import { DialogCreateDistributor } from "../../components/dialog-create-distribu
 import { useAuth } from "../../hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { Loading } from "../../components/ui/loading";
+import { DataTable } from "../../components/data-table";
 
 interface Distributor {
   DISTRIBUTOR_ID: string;
+  AVATAR: string | null;
+
   PLAN_TYPE: "pro" | "master" | "starter";
   ADDRESS: string;
-  REGION: "norte" | "nordeste" | "centrooeste" | "sudeste" | "sul";
-  POSTAL_CODE: string;
-  LONGITUDE: number;
   LATITUDE: number;
+  LONGITUDE: number;
   WHATSAPP_NUMBER: string;
   PHONE_NUMBER: string;
-  EMAIL: string;
   FIRST_NAME: string;
   LAST_NAME: string;
+  EMAIL: string;
   CREATED_AT: Date;
   UPDATED_AT: Date;
 }
@@ -44,6 +45,20 @@ export default function Page() {
   const [distributors, setDistributors] = useState<Distributor[]>([]);
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
+
+  async function handleDelete(id: string) {
+    try {
+      const response = await api.delete(`/api/distributors/${id}`);
+      if (response.status === 200) {
+        setDistributors((prevDistributors) =>
+          prevDistributors.filter((distributor) => distributor.DISTRIBUTOR_ID !== id)
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error("Erro ao deletar distribuidor");
+    }
+  }
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -78,7 +93,7 @@ export default function Page() {
 
 
   return (
-    isLoading ? <div>Loading...</div> :
+    isLoading ? <div className="flex justify-center items-center"><Loading /></div> :
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -101,10 +116,14 @@ export default function Page() {
           </header>
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
             <div className="flex-row flex items-center justify-end">
-              <DialogCreateDistributor />
+              <DialogCreateDistributor onCreate={async (id: string) => {
+                const response = await api.get<Distributor>(`/api/distributors/${id}`);
+                setDistributors((prevDistributors) => [...prevDistributors, response.data]);
+              }} />
             </div>
-            <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min lg:px-4 py-2">
-              <Table>
+            <div className="min-h-[100vh] flex-1 rounded-xl md:min-h-min lg:px-4 py-2">
+              <DataTable data={distributors} onDelete={(id: string) => handleDelete(id)} />
+              {/* <Table>
                 <TableCaption>A lista de todos os seus distribuidores</TableCaption>
                 <TableHeader>
                   <TableRow>
@@ -134,8 +153,7 @@ export default function Page() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
-
+              </Table> */}
             </div>
           </div>
         </SidebarInset>
