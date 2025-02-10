@@ -182,8 +182,8 @@ export function DialogCreateDistributor({ onCreate }: DialogCreateDistributorPro
       <DialogTrigger asChild>
         <Button onClick={() => setIsOpen(true)} variant="default">Criar distribuidor</Button>
       </DialogTrigger>
-      <DialogContent className="table overflow-x-hidden justify-center items-center">
-        <DialogHeader>
+      <DialogContent onClose={() => setIsOpen(false)} onCloseAutoFocus={() => setIsOpen(false)} className="table overflow-x-hidden justify-center items-center">
+        <DialogHeader onAbort={() => setIsOpen(false)}>
           <DialogTitle>Criar distribuidor</DialogTitle>
           <DialogDescription>
             Preencha os campos abaixo para criar um novo distribuidor.

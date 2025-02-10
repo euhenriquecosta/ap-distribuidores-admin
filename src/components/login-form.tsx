@@ -49,7 +49,7 @@ export function LoginForm({
       toast({
         variant: "destructive",
         title: "Sucesso ao fazer login!",
-        style: { backgroundColor: "green", color: "white" },
+        style: { backgroundColor: "green", color: "white", borderColor: "white" },
         description: "Você foi logado com sucesso.",
       });
     } catch (error: unknown) {
