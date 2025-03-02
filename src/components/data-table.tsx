@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "/
 import { Checkbox } from "/src/@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "/src/@/components/ui/dropdown-menu"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { Input } from "./ui/input"
 
 interface Distributor {
   DISTRIBUTOR_ID: string;
@@ -18,30 +19,6 @@ interface Distributor {
   LAST_NAME: string;
 }
 
-
-// const distributorsData: Distributor[] = [
-//   {
-//     DISTRIBUTOR_ID: "1",
-//     FIRST_NAME: "João",
-//     LAST_NAME: "Silva",
-//     PLAN_TYPE: "pro",
-//     EMAIL: "joao@exemplo.com",
-//     PHONE_NUMBER: "(11) 99999-9999",
-//     WHATSAPP_NUMBER: "(11) 99999-9999",
-//     ADDRESS: "Rua X, 123",
-//   },
-//   {
-//     DISTRIBUTOR_ID: "2",
-//     FIRST_NAME: "Maria",
-//     LAST_NAME: "Oliveira",
-//     PLAN_TYPE: "starter",
-//     EMAIL: "maria@exemplo.com",
-//     PHONE_NUMBER: "(11) 98888-8888",
-//     WHATSAPP_NUMBER: "(11) 98888-8888",
-//     ADDRESS: "Avenida Y, 456",
-//   }
-// ]
-
 interface DataTableProps {
   data: Distributor[]
   onDelete: (id: string) => void
@@ -53,12 +30,14 @@ export function DataTable({ data: distributors, onDelete }: DataTableProps) {
     column: "firstName",
     direction: "asc",
   })
+  const [searchQuery, setSearchQuery] = React.useState("")
 
-  // const handleDeleteDistributor = (id: string) => {
-  //   setDistributors((prevDistributors) =>
-  //     prevDistributors.filter((distributor) => distributor.DISTRIBUTOR_ID !== id)
-  //   )
-  // }
+  const [currentPage, setCurrentPage] = React.useState(1)
+  const itemsPerPage = 10
+
+  React.useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
 
   const toggleDistributorSelection = (id: string) => {
     setSelectedDistributors((prevSelected) => {
@@ -80,7 +59,13 @@ export function DataTable({ data: distributors, onDelete }: DataTableProps) {
     })
   }
 
-  const sortedDistributors = [...distributors].sort((a, b) => {
+  const filteredDistributors = distributors.filter((distributor) =>
+    `${distributor.FIRST_NAME} ${distributor.LAST_NAME} ${distributor.EMAIL}`
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  )
+
+  const sortedDistributors = [...filteredDistributors].sort((a, b) => {
     const aValue = a[sortOrder.column as keyof Distributor]
     const bValue = b[sortOrder.column as keyof Distributor]
 
@@ -91,8 +76,21 @@ export function DataTable({ data: distributors, onDelete }: DataTableProps) {
     }
   })
 
+  const totalPages = Math.ceil(sortedDistributors.length / itemsPerPage)
+  const paginatedDistributors = sortedDistributors.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+
   return (
     <div className="w-full">
+      <div className="mb-4">
+        <Input
+          placeholder="Pesquisar por nome ou email..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -110,37 +108,37 @@ export function DataTable({ data: distributors, onDelete }: DataTableProps) {
                 />
               </TableHead>
               <TableHead>
-                <Button variant="link" onClick={() => handleSort("firstName")}>
+                <Button variant="link" onClick={() => handleSort("FIRST_NAME")}>
                   Primeiro Nome <ArrowUpDown />
                 </Button>
               </TableHead>
               <TableHead>
-                <Button variant="link" onClick={() => handleSort("lastName")}>
+                <Button variant="link" onClick={() => handleSort("LAST_NAME")}>
                   Segundo Nome <ArrowUpDown />
                 </Button>
               </TableHead>
               <TableHead>
-                <Button variant="link" onClick={() => handleSort("planType")}>
+                <Button variant="link" onClick={() => handleSort("PLAN_TYPE")}>
                   Tipo de Plano <ArrowUpDown />
                 </Button>
               </TableHead>
               <TableHead>
-                <Button variant="link" onClick={() => handleSort("email")}>
+                <Button variant="link" onClick={() => handleSort("EMAIL")}>
                   Email <ArrowUpDown />
                 </Button>
               </TableHead>
               <TableHead>
-                <Button variant="link" onClick={() => handleSort("phone")}>
+                <Button variant="link" onClick={() => handleSort("PHONE_NUMBER")}>
                   Telefone <ArrowUpDown />
                 </Button>
               </TableHead>
               <TableHead>
-                <Button variant="link" onClick={() => handleSort("whatsapp")}>
+                <Button variant="link" onClick={() => handleSort("WHATSAPP_NUMBER")}>
                   Whatsapp <ArrowUpDown />
                 </Button>
               </TableHead>
               <TableHead>
-                <Button variant="link" onClick={() => handleSort("address")}>
+                <Button variant="link" onClick={() => handleSort("ADDRESS")}>
                   Endereço <ArrowUpDown />
                 </Button>
               </TableHead>
@@ -148,8 +146,8 @@ export function DataTable({ data: distributors, onDelete }: DataTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedDistributors.length ? (
-              sortedDistributors.map((distributor) => (
+            {paginatedDistributors.length ? (
+              paginatedDistributors.map((distributor) => (
                 <TableRow key={distributor.DISTRIBUTOR_ID}>
                   <TableCell>
                     <Checkbox
@@ -173,9 +171,7 @@ export function DataTable({ data: distributors, onDelete }: DataTableProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => onDelete(distributor.DISTRIBUTOR_ID)}
-                        >
+                        <DropdownMenuItem onClick={() => onDelete(distributor.DISTRIBUTOR_ID)}>
                           Excluir
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -192,6 +188,31 @@ export function DataTable({ data: distributors, onDelete }: DataTableProps) {
             )}
           </TableBody>
         </Table>
+      </div>
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="flex items-center space-x-2 text-sm">
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
+        </div>
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            disabled={currentPage === totalPages || totalPages === 0}
+          >
+            Próximo
+          </Button>
+        </div>
       </div>
     </div>
   )
