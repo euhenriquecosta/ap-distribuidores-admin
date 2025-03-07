@@ -7,6 +7,7 @@ import { Checkbox } from "/src/@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "/src/@/components/ui/dropdown-menu"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
 import { Input } from "./ui/input"
+import { useURLState } from "../hooks/use-url-state"
 
 interface Distributor {
   DISTRIBUTOR_ID: string;
@@ -21,16 +22,17 @@ interface Distributor {
 
 interface DataTableProps {
   data: Distributor[]
-  onDelete: (id: string) => void
+  onClickDelete: (id: string) => void
+  onClickEdit: (id: string) => void
 }
 
-export function DataTable({ data: distributors, onDelete }: DataTableProps) {
+export function DataTable({ data: distributors, onClickDelete, onClickEdit }: DataTableProps) {
   const [selectedDistributors, setSelectedDistributors] = React.useState<Set<string>>(new Set())
   const [sortOrder, setSortOrder] = React.useState<{ column: string; direction: "asc" | "desc" }>({
     column: "firstName",
     direction: "asc",
   })
-  const [searchQuery, setSearchQuery] = React.useState("")
+  const [searchQuery, setSearchQuery] = useURLState("q", "", encodeURIComponent, decodeURIComponent)
 
   const [currentPage, setCurrentPage] = React.useState(1)
   const itemsPerPage = 10
@@ -171,8 +173,11 @@ export function DataTable({ data: distributors, onDelete }: DataTableProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onDelete(distributor.DISTRIBUTOR_ID)}>
+                        <DropdownMenuItem onClick={() => onClickDelete(distributor.DISTRIBUTOR_ID)}>
                           Excluir
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onClickEdit(distributor.DISTRIBUTOR_ID)}>
+                          Editar
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
