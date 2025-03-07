@@ -6,6 +6,7 @@ import { Toaster } from "/src/@/components/ui/toaster";
 import "./globals.css";
 import { cn } from "/lib/utils";
 import { AuthContextProvider } from "../contexts/auth-context";
+import { EditDialogDistributorProvider } from "../hooks/use-edit-dialog-distributor";
 
 const dmSans = DM_Sans({
   variable: "--font-geist-sans",
@@ -25,15 +26,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <AuthContextProvider>
-        <body
-          className={cn(
-            "min-h-screen bg-background font-sans antialiased",
-            dmSans.className
-          )}
-        >
-          {children}
-          <Toaster />
-        </body>
+        <EditDialogDistributorProvider>
+          <body
+            className={cn(
+              "min-h-screen bg-background font-sans antialiased",
+              dmSans.className
+            )}
+          >
+            {children}
+            <Toaster />
+          </body>
+        </EditDialogDistributorProvider>
       </AuthContextProvider>
     </html>
   );
