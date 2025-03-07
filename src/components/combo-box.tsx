@@ -18,7 +18,6 @@ import {
 } from "/src/@/components/ui/popover"
 import { useState } from "react"
 
-
 interface AddressComponent {
   longText?: string
   shortText?: string
@@ -51,6 +50,7 @@ interface ComboBoxProps {
   searchTerm: string
   onSearch: (term: string) => void
   isLoading?: boolean
+  placeholder: string
 }
 
 export function ComboBox({
@@ -59,7 +59,8 @@ export function ComboBox({
   onSelect,
   searchTerm,
   onSearch,
-  isLoading
+  isLoading,
+  placeholder
 }: ComboBoxProps) {
   const [open, setOpen] = useState(false)
 
@@ -72,7 +73,7 @@ export function ComboBox({
           aria-expanded={open}
           className="justify-between w-full"
         >
-          {value && options.find((option) => option.value === value)?.label || "Selecione um endereço"}
+          {placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
