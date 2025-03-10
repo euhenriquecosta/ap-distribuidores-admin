@@ -9,6 +9,9 @@ import { PhoneInput } from "./phone-input"
 import { ComboBox } from "./combo-box"
 import { Button } from "./ui/button"
 import { IFormData } from "../interfaces/form"
+import { useState } from "react"
+
+import { AvatarUploader } from "./avatar-uploader"
 
 type DistributorFormProps = {
   form: UseFormReturn<IFormData>;
@@ -17,12 +20,23 @@ type DistributorFormProps = {
 
 export function DistributorForm({ form, loading, ...rest }: DistributorFormProps) {
   const { addressOptions, searchTerm, setSearchTerm } = useAddressSearch()
-  const isEditForm = form.getValues("ADDRESS") !== "";
+  const isEditForm = !!form.getValues("ADDRESS");
   const formType = isEditForm ? "Editar" : "Criar"
+  const [, setImage] = useState('');
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>, onChange: (value: File) => void) => {
+    const files = event.target.files;
+    if (files && files[0]) {
+      const file = files[0];
+      setImage(URL.createObjectURL(file)); // Exibe a imagem no UI
+      onChange(file); // Passa o arquivo para o React Hook Form
+    }
+  };
+
 
   const handleAddressSelect = (placeId: string) => {
     const selected = addressOptions.find(option => option.id === placeId)
-    if (!selected) return
+    if (!selected || !selected.formattedAddress) return;
 
     form.reset(prev => ({
       ...prev,
@@ -34,25 +48,35 @@ export function DistributorForm({ form, loading, ...rest }: DistributorFormProps
 
   return (
     <form onSubmit={rest.onSubmit} className="flex flex-col gap-4" {...rest}>
-      {/* Plano */}
+      {/* Preciso criar um componente para pegar o avatar do usuário aqui!/ */}
       <div className="space-y-2">
-        <Label>Plano</Label>
+        <Label>Foto do Usuário</Label>
         <Controller
-          name="PLAN_TYPE"
+          name="AVATAR"
           control={form.control}
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um plano" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="starter">Starter</SelectItem>
-                <SelectItem value="pro">Pro</SelectItem>
-                <SelectItem value="master">Master</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
+          render={({ field: { onChange, value } }) => <AvatarUploader onChange={(e) => handleImageChange(e, onChange)} value={value} />}
         />
+
+        {/* Plano */}
+        <div className="space-y-2">
+          <Label>Plano</Label>
+          <Controller
+            name="PLAN_TYPE"
+            control={form.control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um plano" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="starter">Starter</SelectItem>
+                  <SelectItem value="pro">Pro</SelectItem>
+                  <SelectItem value="master">Master</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
       </div>
 
       {/* Primeiro Nome */}

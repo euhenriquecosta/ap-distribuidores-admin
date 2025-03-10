@@ -10,4 +10,5 @@ export interface IFormData {
   ADDRESS: string
   LATITUDE: number
   LONGITUDE: number
+  AVATAR: string | null
 }
