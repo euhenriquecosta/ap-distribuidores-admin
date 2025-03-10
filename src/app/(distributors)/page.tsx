@@ -24,6 +24,7 @@ import { Loading } from "../../components/ui/loading";
 import { DataTable } from "../../components/data-table";
 import { useEditDialogDistributor } from "../../hooks/use-edit-dialog-distributor";
 import { DialogEditDistributor } from "../../components/dialog-edit-distributor";
+import { useDialogConfirm } from "../../hooks/use-dialog-confirm";
 
 interface Distributor {
   DISTRIBUTOR_ID: string;
@@ -47,6 +48,9 @@ export default function Page() {
   const { openEditDialog } = useEditDialogDistributor()
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
+
+  const { open } = useDialogConfirm()
+
 
   // TODO: Nesse handle delete vai ser necessário abrir um dialog para confirmar a exclusão do distribuidor
   async function handleDelete(id: string) {
@@ -133,7 +137,7 @@ export default function Page() {
             <DialogCreateDistributor onCreate={(id) => handleCreate(id)} />
           </div>
           <div className="min-h-[calc(100vh-150px)] flex-1 rounded-xl md:min-h-min lg:px-4 py-2">
-            <DataTable data={distributors} onClickDelete={handleDelete} onClickEdit={(id) => openEditDialog(id)} />
+            <DataTable data={distributors} onClickDelete={() => open("Confirmar Exclusão", "Tem certeza que deseja excluir este item?", () => handleDelete)} onClickEdit={(id) => openEditDialog(id)} />
           </div>
         </div>
       </SidebarInset>
