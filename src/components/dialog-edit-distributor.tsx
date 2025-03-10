@@ -49,8 +49,8 @@ export function DialogEditDistributor({ onCreate }: DialogEditDistributorProps) 
 
       const response = await api.put<Distributor>(`api/distributors/${distributorId}`, {
         ...data,
-        PHONE_NUMBER: data.PHONE_NUMBER.replace(/\D/g, ""),
-        WHATSAPP_NUMBER: data.WHATSAPP_NUMBER.replace(/\D/g, "")
+        PHONE_NUMBER: data.PHONE_NUMBER,
+        WHATSAPP_NUMBER: data.WHATSAPP_NUMBER
       })
       if (response.status == 400) {
         toast({
@@ -91,7 +91,8 @@ export function DialogEditDistributor({ onCreate }: DialogEditDistributorProps) 
           ...response.data,
           PHONE_NUMBER: parsePhoneNumber(response.data.PHONE_NUMBER, "BR")?.number,
           WHATSAPP_NUMBER: parsePhoneNumber(response.data.WHATSAPP_NUMBER, "BR")?.number,
-          ADDRESS: response.data.ADDRESS
+          ADDRESS: response.data.ADDRESS,
+          AVATAR: response.data.AVATAR || null
         })
       } catch (error) {
         console.log(error);
