@@ -7,6 +7,7 @@ import "./globals.css";
 import { cn } from "/lib/utils";
 import { AuthContextProvider } from "../contexts/auth-context";
 import { EditDialogDistributorProvider } from "../hooks/use-edit-dialog-distributor";
+import { DialogConfirmProvider } from "../hooks/use-dialog-confirm";
 
 const dmSans = DM_Sans({
   variable: "--font-geist-sans",
@@ -27,15 +28,17 @@ export default function RootLayout({
     <html lang="en">
       <AuthContextProvider>
         <EditDialogDistributorProvider>
-          <body
-            className={cn(
-              "min-h-screen bg-background font-sans antialiased",
-              dmSans.className
-            )}
-          >
-            {children}
-            <Toaster />
-          </body>
+          <DialogConfirmProvider>
+            <body
+              className={cn(
+                "min-h-screen bg-background font-sans antialiased",
+                dmSans.className
+              )}
+            >
+              {children}
+              <Toaster />
+            </body>
+          </DialogConfirmProvider>
         </EditDialogDistributorProvider>
       </AuthContextProvider>
     </html>
