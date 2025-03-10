@@ -22,13 +22,13 @@ export function DistributorForm({ form, loading, ...rest }: DistributorFormProps
   const { addressOptions, searchTerm, setSearchTerm } = useAddressSearch()
   const isEditForm = !!form.getValues("ADDRESS");
   const formType = isEditForm ? "Editar" : "Criar"
-  const [, setImage] = useState('');
+  const [, setImage] = useState<File | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>, onChange: (value: File) => void) => {
     const files = event.target.files;
     if (files && files[0]) {
       const file = files[0];
-      setImage(URL.createObjectURL(file)); // Exibe a imagem no UI
+      setImage(file); // Exibe a imagem no UI
       onChange(file); // Passa o arquivo para o React Hook Form
     }
   };

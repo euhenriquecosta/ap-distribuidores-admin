@@ -8,6 +8,15 @@ const nextConfig: NextConfig = {
     config.resolve.alias['/lib/utils'] = path.join(__dirname, 'src/lib/utils');
     return config;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'api.appro.com.br',
+        pathname: '/uploads/**', // A parte do caminho do arquivo, pode ser mais específica dependendo do seu caso
+      },
+    ],
+  },
 };
 
 export default nextConfig;

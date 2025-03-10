@@ -8,8 +8,10 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
 import { Input } from "./ui/input"
 import { useURLState } from "../hooks/use-url-state"
+import Image from "next/image"
 
 interface Distributor {
+  AVATAR: string | null
   DISTRIBUTOR_ID: string;
   PLAN_TYPE: "pro" | "master" | "starter";
   ADDRESS: string;
@@ -37,10 +39,19 @@ export function DataTable({ data: distributors, onClickDelete, onClickEdit }: Da
   const [currentPage, setCurrentPage] = React.useState(1)
   const itemsPerPage = 10
 
-  React.useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery])
-
+  function validateURL(url: string | null) {
+    try {
+      if (url !== null) {
+        new URL(url);
+        return true;
+      } else {
+        return false
+      }
+      // eslint-disable-next-line
+    } catch (e) {
+      return false;
+    }
+  }
   const toggleDistributorSelection = (id: string) => {
     setSelectedDistributors((prevSelected) => {
       const newSelected = new Set(prevSelected)
@@ -72,8 +83,14 @@ export function DataTable({ data: distributors, onClickDelete, onClickEdit }: Da
     const bValue = b[sortOrder.column as keyof Distributor]
 
     if (sortOrder.direction === "asc") {
+      if (aValue === null || bValue === null) {
+        return 0;
+      }
       return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
     } else {
+      if (aValue === null || bValue === null) {
+        return 0;
+      }
       return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
     }
   })
@@ -83,6 +100,10 @@ export function DataTable({ data: distributors, onClickDelete, onClickEdit }: Da
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   )
+
+  React.useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
 
   return (
     <div className="w-full">
@@ -108,6 +129,11 @@ export function DataTable({ data: distributors, onClickDelete, onClickEdit }: Da
                     }
                   }}
                 />
+              </TableHead>
+              <TableHead>
+                <Button variant="link" onClick={() => null}>
+                  Avatar <ArrowUpDown />
+                </Button>
               </TableHead>
               <TableHead>
                 <Button variant="link" onClick={() => handleSort("FIRST_NAME")}>
@@ -156,6 +182,9 @@ export function DataTable({ data: distributors, onClickDelete, onClickEdit }: Da
                       checked={selectedDistributors.has(distributor.DISTRIBUTOR_ID)}
                       onCheckedChange={() => toggleDistributorSelection(distributor.DISTRIBUTOR_ID)}
                     />
+                  </TableCell>
+                  <TableCell className="justify-center p-10">
+                    <Image src={validateURL(distributor.AVATAR) ? distributor.AVATAR! : "/avatar_fallback.png"} className="border border-gray-200 rounded-full" alt="Avatar" width={44} height={44} />
                   </TableCell>
                   <TableCell>{distributor.FIRST_NAME}</TableCell>
                   <TableCell>{distributor.LAST_NAME}</TableCell>
